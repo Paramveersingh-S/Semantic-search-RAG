@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: search-api-gateway
+spec:
+  replicas: 5
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: search-api-gateway
+  template:
+    metadata:
+      labels:
+        app: search-api-gateway
+    spec:
+      containers:
+      - name: search-api-gateway
+        image: <ecr-repo>/search-api-gateway:latest
+        ports:
+        - containerPort: 8000
+  strategy:
+    canary:
+      steps:
+      - setWeight: 10
+      - pause: {duration: 5m}
+      - setWeight: 25
+      - pause: {duration: 10m}
+      - setWeight: 50
+      - pause: {duration: 15m}
+      - setWeight: 100
