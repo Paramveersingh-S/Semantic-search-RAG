@@ -1,0 +1,42 @@
+version: '3.9'
+
+services:
+  # In production, stateful services (Kafka, ES, Postgres) are managed by cloud providers (AWS MSK, RDS, etc.)
+  # This override file removes them and configures microservices for production
+
+  zookeeper:
+    profiles: ["dev"]
+  kafka:
+    profiles: ["dev"]
+  elasticsearch:
+    profiles: ["dev"]
+  postgres:
+    profiles: ["dev"]
+  redis:
+    profiles: ["dev"]
+  supabase:
+    profiles: ["dev"]
+
+  api_gateway:
+    deploy:
+      replicas: 3
+    environment:
+      - ENV=production
+      - REDIS_URL=redis://production-elasticache-url:6379
+
+  embedding:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      - ENV=production
+
+  ingestion:
+    deploy:
+      replicas: 2
+    environment:
+      - KAFKA_BROKER=production-msk-url:9092

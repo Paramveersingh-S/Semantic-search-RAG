@@ -1,0 +1,100 @@
+version: '3.9'
+
+services:
+  zookeeper:
+    image: bitnami/zookeeper:3.9
+    ports:
+      - "2181:2181"
+    environment:
+      ALLOW_ANONYMOUS_LOGIN: "yes"
+  
+  kafka:
+    image: bitnami/kafka:3.7
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
+      # Topics: raw-documents, processed-chunks, embedding-tasks
+  
+  elasticsearch:
+    image: elasticsearch:8.13.0
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms2g -Xmx2g
+  
+  postgres:
+    image: pgvector/pgvector:pg16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: searchdb
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+  
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  supabase:
+    image: supabase/postgres:15.1.0.117
+    # Placeholder for local supabase if needed, pgvector above handles main db
+    environment:
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "54322:5432"
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.13.0
+    depends_on:
+      - postgres
+    ports:
+      - "5000:5000"
+    command: mlflow server --backend-store-uri postgresql://admin:secret@postgres:5432/searchdb --host 0.0.0.0
+
+  # Microservices
+  ingestion:
+    build: ./services/ingestion
+    ports:
+      - "8001:8000"
+    depends_on:
+      - kafka
+
+  processing:
+    build: ./services/processing
+    depends_on:
+      - kafka
+
+  embedding:
+    build: ./services/embedding
+    ports:
+      - "50051:50051"
+    
+  indexer:
+    build: ./services/indexer
+    depends_on:
+      - elasticsearch
+      - postgres
+
+  retrieval:
+    build: ./services/retrieval
+
+  reranker:
+    build: ./services/reranker
+
+  rag:
+    build: ./services/rag
+
+  api_gateway:
+    build: ./services/api_gateway
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
