@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   # In production, stateful services (Kafka, ES, Postgres) are managed by cloud providers (AWS MSK, RDS, etc.)
   # This override file removes them and configures microservices for production
