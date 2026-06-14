@@ -23,46 +23,36 @@ A production-grade, distributed microservices platform for **Enterprise Semantic
 
 ```mermaid
 graph TD
-    %% Users & Gateway
-    User([User / API Client])
-    API[FastAPI Gateway]
-    
-    %% Ingestion Pipeline
-    Kafka[Kafka Broker]
-    Spark[PySpark Streaming Processing]
-    
-    %% Storage & Index
-    ES[(Elasticsearch<br/>BM25 + Sparse)]
-    PG[(PostgreSQL<br/>pgvector Dense)]
-    Redis[(Redis Cache)]
-    
-    %% ML Services
-    Embed[gRPC Embedding Service<br/>Dense + SPLADE]
-    Retrieval[Hybrid Retrieval Service<br/>RRF Fusion]
-    Rerank[Cross-Encoder Reranker]
-    RAG[LLM Answer Generator<br/>Mistral-7B]
+    User(["User / API Client"])
+    API["FastAPI Gateway"]
+    Kafka["Kafka Broker"]
+    Spark["PySpark Processing"]
+    ES[("Elasticsearch Index")]
+    PG[("PostgreSQL pgvector")]
+    Redis[("Redis Cache")]
+    Embed["gRPC Embedding Service"]
+    Retrieval["Hybrid Retrieval Service"]
+    Rerank["Cross-Encoder Reranker"]
+    RAG["Mistral-7B LLM Generator"]
 
-    %% Connections
-    User -->|POST /v1/search| API
-    User -->|POST /v1/ingest| API
+    User -- "Search / Ingest" --> API
+    API -- "Cache Check" --> Redis
+    API -- "Raw Docs" --> Kafka
+    Kafka -- "Stream" --> Spark
+    Spark -- "Chunks" --> Kafka
+    Kafka -- "Batch" --> Embed
     
-    API <-->|Check Cache| Redis
-    API -->|Ingest Doc| Kafka
-    Kafka -->|Raw Docs| Spark
-    Spark -->|Clean & Chunk| Kafka
-    Kafka -->|Processed Chunks| Embed
+    Embed -- "Sparse Vectors" --> ES
+    Embed -- "Dense Vectors" --> PG
     
-    Embed -->|Vectors| ES
-    Embed -->|Vectors| PG
+    API -- "Query" --> Retrieval
+    Retrieval -- "Encode" --> Embed
+    Retrieval -- "BM25" --> ES
+    Retrieval -- "HNSW" --> PG
     
-    API -->|Search Query| Retrieval
-    Retrieval <-->|Extract Vectors| Embed
-    Retrieval <-->|BM25/Sparse| ES
-    Retrieval <-->|Dense HNSW| PG
-    
-    Retrieval -->|Top 50 Candidates| Rerank
-    Rerank -->|Top 10 Ranked| RAG
-    RAG -->|Generate Answer| API
+    Retrieval -- "Top Candidates" --> Rerank
+    Rerank -- "Top 10" --> RAG
+    RAG -- "Answer" --> API
 ```
 
 ---
