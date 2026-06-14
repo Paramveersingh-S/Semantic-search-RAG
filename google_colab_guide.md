@@ -7,7 +7,7 @@ You can test the heavy inference parts by opening a new Google Colab notebook, s
 ### Cell 1: Clone the Repository & Setup
 ```python
 !git clone https://github.com/Paramveersingh-S/Semantic-search-RAG.git
-%cd Semantic-search-RAG/enterprise-search-rag
+%cd Semantic-search-RAG
 ```
 
 ### Cell 2: Install Heavy GPU Dependencies
