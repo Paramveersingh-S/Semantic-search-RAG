@@ -14,7 +14,7 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Redis for caching
-redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
+redis_url = os.getenv("REDIS_URL", "redis://redis:6379")
 app.state.redis = redis.from_url(redis_url)
 
 # Include routers

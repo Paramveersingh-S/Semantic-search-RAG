@@ -4,7 +4,7 @@ import os
 
 router = APIRouter()
 
-INGESTION_SERVICE_URL = os.getenv("INGESTION_SERVICE_URL", "http://localhost:8001")
+INGESTION_SERVICE_URL = os.getenv("INGESTION_SERVICE_URL", "http://ingestion:8000")
 
 @router.post("/ingest")
 async def ingest_document(

@@ -4,7 +4,7 @@ from typing import Dict, Any
 from schemas.document import RawDocument
 
 class KafkaDocumentProducer:
-    def __init__(self, bootstrap_servers: str = 'localhost:9092'):
+    def __init__(self, bootstrap_servers: str = 'kafka:9092'):
         self.producer = KafkaProducer(
             bootstrap_servers=bootstrap_servers,
             value_serializer=lambda v: json.dumps(v).encode('utf-8'),

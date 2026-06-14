@@ -10,7 +10,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../../data'))
 from schemas.document import RawDocument
 
 app = FastAPI(title="Ingestion Service")
-producer = KafkaDocumentProducer(bootstrap_servers=os.getenv("KAFKA_BROKERS", "localhost:9092"))
+producer = KafkaDocumentProducer(bootstrap_servers=os.getenv("KAFKA_BROKERS", "kafka:9092"))
 
 @app.post("/ingest")
 async def ingest_document(
