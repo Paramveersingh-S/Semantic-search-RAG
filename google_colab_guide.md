@@ -74,8 +74,42 @@ print("\n--- LLM GENERATED ANSWER ---")
 print(tokenizer.decode(outputs[0], skip_special_tokens=True))
 ```
 
-### Next Steps for Full Integration
-To fully connect Colab to your Codespaces architecture (so Colab acts as an external GPU worker):
-1. Expose your Codespaces API Gateway URL using Ngrok.
-2. Inside Colab, write a simple `requests` polling script that listens for tasks from your API Gateway.
-3. Have Colab perform the heavy generation and send the JSON response back to your architecture!
+### Cell 5: Run the External GPU RAG Worker
+Run this to expose Colab as a webhook that your Codespaces API Gateway can talk to!
+```python
+!pip install pyngrok nest-asyncio fastapi uvicorn pydantic
+import nest_asyncio
+from pyngrok import ngrok
+import uvicorn
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+app = FastAPI()
+
+class GenerateRequest(BaseModel):
+    query: str
+    context: list[str]
+
+@app.post("/generate")
+def generate(req: GenerateRequest):
+    # Combine context
+    context_str = "\n\n".join(req.context)
+    prompt = f"Context: {context_str}\n\nQuestion: {req.query}\nAnswer:"
+    inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
+    outputs = model.generate(**inputs, max_new_tokens=150)
+    answer = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    # Strip prompt from answer
+    answer = answer.split("Answer:")[-1].strip()
+    return {"answer": answer}
+
+# REPLACE WITH YOUR OWN NGROK AUTH TOKEN FROM ngrok.com
+ngrok.set_auth_token("YOUR_NGROK_TOKEN") 
+public_url = ngrok.connect(8000).public_url
+print(f"\n\n=========================================")
+print(f"COPY THIS URL INTO YOUR CODESPACES:")
+print(f"export RAG_WORKER_URL={public_url}")
+print(f"=========================================\n\n")
+
+nest_asyncio.apply()
+uvicorn.run(app, port=8000)
+```

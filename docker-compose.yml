@@ -96,7 +96,9 @@ services:
     build: ./services/rag
 
   api_gateway:
-    build: ./services/api_gateway
+    build:
+      context: .
+      dockerfile: ./services/api_gateway/Dockerfile
     ports:
       - "8000:8000"
     depends_on:
