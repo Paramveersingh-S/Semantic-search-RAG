@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package embedding;
+
+service EmbeddingService {
+  rpc EncodeDense (EncodeDenseRequest) returns (EncodeDenseResponse);
+  rpc EncodeSparse (EncodeSparseRequest) returns (EncodeSparseResponse);
+  rpc EncodeHybrid (EncodeHybridRequest) returns (EncodeHybridResponse);
+  rpc EncodeBatch (EncodeBatchRequest) returns (stream EncodeBatchResponse);
+}
+
+message EncodeDenseRequest {
+  repeated string texts = 1;
+  string model_name = 2;
+  bool normalize = 3;
+}
+
+message EncodeDenseResponse {
+  repeated DenseVector vectors = 1;
+  int32 model_dim = 2;
+  float latency_ms = 3;
+}
+
+message DenseVector {
+  repeated float values = 1;
+}
+
+message EncodeSparseRequest {
+  repeated string texts = 1;
+}
+
+message EncodeSparseResponse {
+  repeated SparseVector vectors = 1;
+}
+
+message SparseVector {
+  repeated int32 indices = 1;
+  repeated float values = 2;
+}
+
+message EncodeHybridRequest {
+  repeated string texts = 1;
+  bool include_dense = 2;
+  bool include_sparse = 3;
+}
+
+message EncodeHybridResponse {
+  repeated DenseVector dense_vectors = 1;
+  repeated SparseVector sparse_vectors = 2;
+}
+
+message EncodeBatchRequest {
+  repeated string texts = 1;
+  int32 batch_size = 2;
+}
+
+message EncodeBatchResponse {
+  repeated DenseVector dense_vectors = 1;
+  repeated SparseVector sparse_vectors = 2;
+  int32 batch_index = 3;
+}
