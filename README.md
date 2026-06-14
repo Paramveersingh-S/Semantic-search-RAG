@@ -11,6 +11,7 @@
 [![HuggingFace](https://img.shields.io/badge/HuggingFace-Transformers-FFD21E.svg?logo=huggingface&logoColor=black)](https://huggingface.co/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED.svg?logo=docker&logoColor=white)](https://www.docker.com/)
 [![Terraform](https://img.shields.io/badge/Terraform-1.8.0-844FBA.svg?logo=terraform&logoColor=white)](https://www.terraform.io/)
+[![Google Colab](https://img.shields.io/badge/Google%20Colab-%23F9AB00.svg?logo=googlecolab&logoColor=white)](https://colab.research.google.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A production-grade, distributed microservices platform for **Enterprise Semantic Search** and **Retrieval-Augmented Generation (RAG)**. Capable of ingesting millions of documents, indexing them via Hybrid Search (BM25 + Dense Vectors + custom SPLADE v2), and serving sub-100ms LLM-powered answer generation.
@@ -31,9 +32,7 @@ graph TD
     PG[("PostgreSQL pgvector")]
     Redis[("Redis Cache")]
     Embed["gRPC Embedding Service"]
-    Retrieval["Hybrid Retrieval Service"]
-    Rerank["Cross-Encoder Reranker"]
-    RAG["Mistral-7B LLM Generator"]
+    Colab["Remote Colab GPU Worker (Ngrok)"]
 
     User -- "Search / Ingest" --> API
     API -- "Cache Check" --> Redis
@@ -45,14 +44,13 @@ graph TD
     Embed -- "Sparse Vectors" --> ES
     Embed -- "Dense Vectors" --> PG
     
-    API -- "Query" --> Retrieval
-    Retrieval -- "Encode" --> Embed
-    Retrieval -- "BM25" --> ES
-    Retrieval -- "HNSW" --> PG
+    API -- "Encode Query" --> Embed
+    API -- "BM25" --> ES
+    API -- "HNSW" --> PG
     
-    Retrieval -- "Top Candidates" --> Rerank
-    Rerank -- "Top 10" --> RAG
-    RAG -- "Answer" --> API
+    API -- "HTTP POST (Context)" --> Colab
+    Colab -- "Mistral-7B Answer" --> API
+    API -- "JSON Response" --> User
 ```
 
 ---
@@ -76,11 +74,10 @@ This platform is meticulously designed referencing enterprise standards set by E
 
 ---
 
-## 🚀 Quickstart & Instructions
+This repository is optimized for isolated cloud-development environments like **GitHub Codespaces** and offloads heavy GPU Generation to **Google Colab**.
 
-This repository is optimized for isolated cloud-development environments like **GitHub Codespaces**, eliminating the need for complex local Docker networking.
-
-👉 **[Read the Step-by-Step GitHub Codespaces Setup Guide here](./github_codespaces_guide.md)**
+👉 **[Read the Step-by-Step GitHub Codespaces Setup Guide here](./github_codespaces_guide.md)**  
+👉 **[Read the Heavy GPU Google Colab Guide here](./google_colab_guide.md)**
 
 ### Brief Overview of Running the Project
 
