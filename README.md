@@ -1,4 +1,4 @@
-# Enterprise Semantic Search & RAG Platform
+# Semantic Search & RAG Platform
 
 <div align="center">
 
@@ -14,7 +14,7 @@
 [![Google Colab](https://img.shields.io/badge/Google%20Colab-%23F9AB00.svg?logo=googlecolab&logoColor=white)](https://colab.research.google.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A production-grade, distributed microservices platform for **Enterprise Semantic Search** and **Retrieval-Augmented Generation (RAG)**. Capable of ingesting millions of documents, indexing them via Hybrid Search (BM25 + Dense Vectors + custom SPLADE v2), and serving sub-100ms LLM-powered answer generation.
+A distributed microservices platform for **Enterprise Semantic Search** and **Retrieval-Augmented Generation (RAG)**. Capable of ingesting millions of documents, indexing them via Hybrid Search (BM25 + Dense Vectors + custom SPLADE v2), and serving sub-100ms LLM-powered answer generation.
 
 </div>
 
